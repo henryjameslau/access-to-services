@@ -16,15 +16,15 @@ importLocationData <- function(src,
                                loncol = "lon",
                                latcol = "lat",
                                postcodecol = "postcode") {
-  
+
   data_points <-
     read.csv(src, sep = ",", as.is = TRUE) # Opens file box
-  
+
   colnames(data_points)[which(names(data_points) == idcol)] <- "name"
   colnames(data_points)[which(names(data_points) == loncol)] <- "lon"
   colnames(data_points)[which(names(data_points) == latcol)] <- "lat"
   colnames(data_points)[which(names(data_points) == postcodecol)] <- "postcode"
-  
+
   if ("lat" %in% colnames(data_points))
   {
     if (!("lon" %in% colnames(data_points))) {
@@ -44,7 +44,7 @@ importLocationData <- function(src,
         "\n"
         )
       )
-    
+
     message(
       paste0(
         "Will try and find a postcode column in the data with the name ",
@@ -52,16 +52,16 @@ importLocationData <- function(src,
         ". If one is found, it may be able to be converted to latitude and longitude values.\n"
         )
       )
-    
+
     if (postcodecol %in% colnames(data_points)) {
       message(
-        "Postcodes were found, and will be converted to latitude and longitude values now. 
+        "Postcodes were found, and will be converted to latitude and longitude values now.
         Warning: If a postcode doesn't exist as a latitude and longitude in the API call,
         the location will be removed from the list.\n"
       )
-      
+
       data_points$postcode <- gsub('\\s+', '', data_points$postcode)
-      
+
       for (i in 1:nrow(data_points)) {
         pc_content <-
           propeR::postcodeToDecimalDegrees(data_points$postcode[i])
@@ -77,7 +77,7 @@ importLocationData <- function(src,
               " cannot be convert to a latitude and longitude.
               This location shall be removed from the list.\n"
             )
-            data_points <- data_points[-i,]
+            # data_points <- data_points[-i,]
           } else {
             data_points$lat[i] <- pc_content$result$latitude
             data_points$lon[i] <- pc_content$result$longitude
@@ -98,7 +98,7 @@ importLocationData <- function(src,
       )
     }
   }
-  
+
   data_points <-
     data_points[order(data_points$name),] # Sort by name
   data_points <-
